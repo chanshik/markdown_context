@@ -1,5 +1,6 @@
 from unittest import TestCase
 from markdown_to_json import MarkdownContext
+import pprint
 
 
 class TestMarkdown(TestCase):
@@ -58,3 +59,6 @@ online [Dingus][].
         self.assertEqual(
             "Thus,",
             subjects[1]["contexts"][1].split(" ")[0])
+        self.assertEqual(
+            "  [syntax]: /projects/markdown/syntax",
+            subjects[1]["contexts"][2].split("\n")[0])
