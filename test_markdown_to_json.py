@@ -48,6 +48,7 @@ online [Dingus][].
         self.assertEqual(2, len(obj["documents"][0]["subjects"]))
         self.assertEqual("Download", obj["documents"][0]["subjects"][0]["title"])
         self.assertEqual("Introduction", obj["documents"][0]["subjects"][1]["title"])
+        self.assertEqual(3, len(obj["documents"][0]["subjects"][1]["contexts"]))
 
         subjects = obj["documents"][0]["subjects"]
         self.assertEqual(
@@ -62,3 +63,30 @@ online [Dingus][].
         self.assertEqual(
             "  [syntax]: /projects/markdown/syntax",
             subjects[1]["contexts"][2].split("\n")[0])
+
+    def test_parse_document_only(self):
+        doc_only = """
+Markdown
+========
+"""
+        obj = self.md_context.parse(doc_only)
+
+        self.assertEqual(1, len(obj["documents"]))
+
+    def test_parse_document_and_subject_only(self):
+        doc_and_sub_only = """
+Markdown
+========
+
+Download
+--------
+
+
+
+Introduction
+------------
+"""
+        obj = self.md_context.parse(doc_and_sub_only)
+
+        self.assertEqual(1, len(obj["documents"]))
+        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
