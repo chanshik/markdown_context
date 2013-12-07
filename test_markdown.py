@@ -47,3 +47,14 @@ online [Dingus][].
         self.assertEqual(2, len(obj["documents"][0]["subjects"]))
         self.assertEqual("Download", obj["documents"][0]["subjects"][0]["title"])
         self.assertEqual("Introduction", obj["documents"][0]["subjects"][1]["title"])
+
+        subjects = obj["documents"][0]["subjects"]
+        self.assertEqual(
+            "[Markdown 1.0.1][dl] (18 KB) -- 17 Dec 2004",
+            subjects[0]["contexts"][0])
+        self.assertEqual(
+            "Markdown",
+            subjects[1]["contexts"][0].split(" ")[0])
+        self.assertEqual(
+            "Thus,",
+            subjects[1]["contexts"][1].split(" ")[0])

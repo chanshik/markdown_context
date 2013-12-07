@@ -44,16 +44,30 @@ class MarkdownContext(object):
 
     def parse(self, md):
         lines = md.split("\n")
+        paragraph = []
 
         for i in range(len(lines)):
+            line = lines[i]
             if lines[i].strip() == "":
+                if self.cur_doc and self.cur_sub and len(paragraph) > 0:
+                    self.add_context("\n".join(paragraph), self.cur_doc, self.cur_sub)
+
+                    paragraph = []
                 continue
 
-            doc = self.is_document(lines, i)
-            if doc is not None:
-                self.cur_doc = doc
+            if self.cur_doc and self.cur_sub:
+                paragraph.append(lines[i])
 
-            subject = self.is_subject(lines, i)
+            is_doc = self.is_document(lines, i)
+            is_sub = self.is_subject(lines, i)
+
+            if (is_doc or is_sub) and len(paragraph) > 0:
+                # Remove 2 lines before current line.
+                #   Title   Subject
+                #   =====   -------
+                #   --> Current line position.
+                paragraph.pop()
+                paragraph.pop()
 
         return self.obj
 
@@ -86,9 +100,12 @@ class MarkdownContext(object):
     def add_subject(self, doc, title):
         doc["subjects"].append({
             "title": title,
-            "context": list()
+            "contexts": list()
         })
 
         self.cur_sub = doc["subjects"][-1]
 
         return self.cur_sub
+
+    def add_context(self, paragraph, doc, sub):
+        sub["contexts"].append(paragraph)
