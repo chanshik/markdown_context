@@ -90,3 +90,17 @@ Introduction
 
         self.assertEqual(1, len(obj["documents"]))
         self.assertEqual(2, len(obj["documents"][0]["subjects"]))
+
+    def test_no_document(self):
+        no_doc = """
+Download
+--------
+
+
+Introduction
+------------
+"""
+        obj = self.md_context.parse(no_doc)
+
+        self.assertEqual(1, len(obj["documents"]))
+        self.assertEqual("document", obj["documents"][0]["title"])
