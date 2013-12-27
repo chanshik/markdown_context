@@ -47,7 +47,6 @@ class MarkdownContext(object):
         paragraph = []
 
         for i in range(len(lines)):
-            line = lines[i]
             if lines[i].strip() == "":
                 if self.cur_doc and self.cur_sub and len(paragraph) > 0:
                     self.add_context("\n".join(paragraph), self.cur_doc, self.cur_sub)
@@ -91,6 +90,7 @@ class MarkdownContext(object):
     def is_subject(self, lines, idx):
         if self.re_subject.match(lines[idx]):
             if self.cur_doc is None:
+                # Add default 'document'
                 self.cur_doc = self.add_document("document")
 
             return self.add_subject(self.cur_doc, lines[idx - 1])

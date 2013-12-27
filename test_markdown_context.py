@@ -3,7 +3,7 @@ from markdown_context import MarkdownContext
 import pprint
 
 
-class TestMarkdownContext(TestCase):
+class TestMarkdown(TestCase):
     def setUp(self):
         self.md_context = MarkdownContext()
         self.md = """
@@ -107,4 +107,18 @@ Markdown is a text-to-HTML conversion tool for web writers.
         obj = self.md_context.parse(simple_md)
         plain_text = self.md_context.export(obj)
 
-        self.assertEqual(simple_md, plain_text)
+        self.assertEqual(simple_md, plain_text)        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
+
+    def test_no_document(self):
+        no_doc = """
+Download
+--------
+
+
+Introduction
+------------
+"""
+        obj = self.md_context.parse(no_doc)
+
+        self.assertEqual(1, len(obj["documents"]))
+        self.assertEqual("document", obj["documents"][0]["title"])
