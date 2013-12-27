@@ -1,9 +1,9 @@
 from unittest import TestCase
-from markdown_to_json import MarkdownContext
+from markdown_context import MarkdownContext
 import pprint
 
 
-class TestMarkdown(TestCase):
+class TestMarkdownContext(TestCase):
     def setUp(self):
         self.md_context = MarkdownContext()
         self.md = """
@@ -90,3 +90,21 @@ Introduction
 
         self.assertEqual(1, len(obj["documents"]))
         self.assertEqual(2, len(obj["documents"][0]["subjects"]))
+
+    def test_export(self):
+        simple_md = """Markdown
+========
+
+Download
+--------
+
+Introduction
+------------
+
+This is a very simple markdown text.
+Markdown is a text-to-HTML conversion tool for web writers.
+"""
+        obj = self.md_context.parse(simple_md)
+        plain_text = self.md_context.export(obj)
+
+        self.assertEqual(simple_md, plain_text)
