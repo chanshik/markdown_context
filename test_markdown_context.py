@@ -107,7 +107,7 @@ Markdown is a text-to-HTML conversion tool for web writers.
         obj = self.md_context.parse(simple_md)
         plain_text = self.md_context.export(obj)
 
-        self.assertEqual(simple_md, plain_text)        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
+        self.assertEqual(simple_md, plain_text)
 
     def test_no_document(self):
         no_doc = """
@@ -121,4 +121,5 @@ Introduction
         obj = self.md_context.parse(no_doc)
 
         self.assertEqual(1, len(obj["documents"]))
+        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
         self.assertEqual("document", obj["documents"][0]["title"])

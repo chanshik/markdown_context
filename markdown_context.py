@@ -110,8 +110,7 @@ class MarkdownContext(object):
     def add_context(self, paragraph, doc, sub):
         sub["contexts"].append(paragraph)
 
-    @staticmethod
-    def export(md_obj):
+    def export(self, md_obj):
         result = ""
         for doc in md_obj["documents"]:
             result += doc["title"] + "\n"
