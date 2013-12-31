@@ -57,8 +57,8 @@ class MarkdownContext(object):
             if self.cur_doc and self.cur_sub:
                 paragraph.append(lines[i])
 
-            is_doc = self.is_document(lines, i)
-            is_sub = self.is_subject(lines, i)
+            is_doc = self.find_and_add_document(lines, i)
+            is_sub = self.find_and_add_subject(lines, i)
 
             if (is_doc or is_sub) and len(paragraph) > 0:
                 # Remove 2 lines before current line.
@@ -70,24 +70,33 @@ class MarkdownContext(object):
 
         return self.obj
 
-    def is_document(self, lines, idx):
+    def find_and_add_document(self, lines, idx):
         if self.re_document.match(lines[idx]):
             return self.add_document(lines[idx - 1])
         else:
             return None
 
     def add_document(self, title):
-        self.obj["documents"].append({
-            "title": title,
-            "subjects": list()
-        })
+        exist_doc = False
+        for doc in self.obj["documents"]:
+            if title == doc["title"]:
+                exist_doc = True
 
-        self.cur_doc = self.obj["documents"][-1]
+                self.cur_doc = doc
+                break
+
+        if exist_doc is False:
+            self.obj["documents"].append({
+                "title": title,
+                "subjects": list()
+            })
+
+            self.cur_doc = self.obj["documents"][-1]
 
         return self.cur_doc
 
 
-    def is_subject(self, lines, idx):
+    def find_and_add_subject(self, lines, idx):
         if self.re_subject.match(lines[idx]):
             if self.cur_doc is None:
                 # Add default 'document'
@@ -98,12 +107,21 @@ class MarkdownContext(object):
             return None
 
     def add_subject(self, doc, title):
-        doc["subjects"].append({
-            "title": title,
-            "contexts": list()
-        })
+        exist_sub = False
+        for sub in doc["subjects"]:
+            if title == sub["title"]:
+                exist_sub = True
 
-        self.cur_sub = doc["subjects"][-1]
+                self.cur_sub = sub
+                break
+
+        if exist_sub is False:
+            doc["subjects"].append({
+                "title": title,
+                "contexts": list()
+            })
+
+            self.cur_sub = doc["subjects"][-1]
 
         return self.cur_sub
 

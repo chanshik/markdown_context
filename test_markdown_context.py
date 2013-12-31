@@ -144,3 +144,54 @@ Introduction
         self.assertEqual(1, len(obj["documents"]))
         self.assertEqual(2, len(obj["documents"][0]["subjects"]))
         self.assertEqual("document", obj["documents"][0]["title"])
+
+    def test_parse_with_separated_section(self):
+        separated_md = """
+Category A
+========
+
+Thing A
+-------
+
+"Thing A" in Category A
+
+Thing B
+-------
+
+"Thing B" in Category A
+
+Category B
+==========
+
+Thing C
+-------
+
+"Thing C" in Category B
+
+Category A
+==========
+
+Thing A
+-------
+
+"Thing A" in another Category A
+
+Category B
+==========
+
+Thing C
+-------
+
+"Thing C" in another Category B
+
+Thing D
+-------
+
+"Thing D" in another Category B
+
+"""
+        obj = self.md_context.parse(separated_md)
+
+        self.assertEqual(2, len(obj["documents"]))
+        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
+        self.assertEqual(2, len(obj["documents"][1]["subjects"]))
