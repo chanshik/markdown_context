@@ -195,3 +195,30 @@ Thing D
         self.assertEqual(2, len(obj["documents"]))
         self.assertEqual(2, len(obj["documents"][0]["subjects"]))
         self.assertEqual(2, len(obj["documents"][1]["subjects"]))
+
+    def test_parse_repeatable(self):
+        md_a = """
+Category A
+==========
+
+Thing A
+-------
+
+Task A
+"""
+        md_b = """
+Category A
+==========
+
+Thing A
+-------
+
+Task B
+"""
+
+        self.md_context.parse(md_a)
+        self.md_context.parse(md_b)
+
+        obj = self.md_context.get_context()
+
+        self.assertEqual(2, len(obj["documents"][0]["subjects"][0]["contexts"]))

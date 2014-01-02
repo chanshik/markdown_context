@@ -70,6 +70,9 @@ class MarkdownContext(object):
 
         return self.obj
 
+    def get_context(self):
+        return self.obj
+
     def find_and_add_document(self, lines, idx):
         if self.re_document.match(lines[idx]):
             return self.add_document(lines[idx - 1])
