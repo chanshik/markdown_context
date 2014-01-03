@@ -105,8 +105,11 @@ This is a very simple markdown text.
 Markdown is a text-to-HTML conversion tool for web writers.
 """
         obj = self.md_context.parse(simple_md)
-        plain_text = self.md_context.export(obj)
 
+        plain_text = self.md_context.export(obj)
+        self.assertEqual(simple_md, plain_text)
+
+        plain_text = self.md_context.export()
         self.assertEqual(simple_md, plain_text)
 
     def test_export_with_no_document(self):
