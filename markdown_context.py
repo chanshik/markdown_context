@@ -47,9 +47,10 @@ class MarkdownContext(object):
         paragraph = []
 
         for i in range(len(lines)):
+            # Each paragraph separated by empty line.
             if lines[i].strip() == "":
                 if self.cur_doc and self.cur_sub and len(paragraph) > 0:
-                    self.add_context("\n".join(paragraph), self.cur_doc, self.cur_sub)
+                    self.add_context("\n".join(paragraph), self.cur_sub)
 
                     paragraph = []
                 continue
@@ -128,12 +129,18 @@ class MarkdownContext(object):
 
         return self.cur_sub
 
-    def add_context(self, paragraph, doc, sub):
+    def add_context(self, paragraph, sub):
         sub["contexts"].append(paragraph)
 
     def export(self, md_obj=None):
         if md_obj is None:
             md_obj = self.obj
+
+        if not isinstance(md_obj, dict):
+            return None
+
+        if "documents" not in md_obj:
+            return None
 
         result = ""
         for doc in md_obj["documents"]:

@@ -225,3 +225,7 @@ Task B
         obj = self.md_context.get_context()
 
         self.assertEqual(2, len(obj["documents"][0]["subjects"][0]["contexts"]))
+
+    def test_export_with_invalid_object(self):
+        self.assertIsNone(self.md_context.export([]))
+        self.assertIsNone(self.md_context.export({}))
