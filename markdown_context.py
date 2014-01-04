@@ -144,10 +144,16 @@ class MarkdownContext(object):
 
         result = ""
         for doc in md_obj["documents"]:
+            if "title" not in doc or "subjects" not in doc:
+                continue
+
             result += doc["title"] + "\n"
             result += "=" * len(doc["title"]) + "\n\n"
 
             for sub in doc["subjects"]:
+                if "title" not in sub or "contexts" not in sub:
+                    continue
+
                 result += sub["title"] + "\n"
                 result += "-" * len(sub["title"]) + "\n\n"
                 for para in sub["contexts"]:

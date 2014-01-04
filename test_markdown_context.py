@@ -229,3 +229,25 @@ Task B
     def test_export_with_invalid_object(self):
         self.assertIsNone(self.md_context.export([]))
         self.assertIsNone(self.md_context.export({}))
+        self.assertEqual("", self.md_context.export({
+            "documents": [
+                {
+                    "title": "Title"
+                }
+            ]
+        }))
+        self.assertEqual("""Title
+=====
+
+""", self.md_context.export({
+            "documents": [
+                {
+                    "title": "Title",
+                    "subjects": [
+                        {
+                            "title": "Subject Title"
+                        }
+                    ]
+                }
+            ]
+        }))
