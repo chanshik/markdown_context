@@ -99,7 +99,6 @@ class MarkdownContext(object):
 
         return self.cur_doc
 
-
     def find_and_add_subject(self, lines, idx):
         if self.re_subject.match(lines[idx]):
             if self.cur_doc is None:
@@ -129,7 +128,8 @@ class MarkdownContext(object):
 
         return self.cur_sub
 
-    def add_context(self, paragraph, sub):
+    @staticmethod
+    def add_context(paragraph, sub):
         sub["contexts"].append(paragraph)
 
     def export(self, md_obj=None):
