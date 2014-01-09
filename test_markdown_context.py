@@ -42,27 +42,27 @@ online [Dingus][].
         obj = self.md_context.parse(self.md)
 
         self.assertIsNotNone(obj)
-        self.assertEqual(1, len(obj["documents"]))
-        self.assertEqual("Markdown", obj["documents"][0]["title"])
+        self.assertEqual(1, len(obj["projects"]))
+        self.assertEqual("Markdown", obj["projects"][0]["name"])
 
-        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
-        self.assertEqual("Download", obj["documents"][0]["subjects"][0]["title"])
-        self.assertEqual("Introduction", obj["documents"][0]["subjects"][1]["title"])
-        self.assertEqual(3, len(obj["documents"][0]["subjects"][1]["contexts"]))
+        self.assertEqual(2, len(obj["projects"][0]["tasks"]))
+        self.assertEqual("Download", obj["projects"][0]["tasks"][0]["name"])
+        self.assertEqual("Introduction", obj["projects"][0]["tasks"][1]["name"])
+        self.assertEqual(3, len(obj["projects"][0]["tasks"][1]["notes"]))
 
-        subjects = obj["documents"][0]["subjects"]
+        subjects = obj["projects"][0]["tasks"]
         self.assertEqual(
             "[Markdown 1.0.1][dl] (18 KB) -- 17 Dec 2004",
-            subjects[0]["contexts"][0])
+            subjects[0]["notes"][0])
         self.assertEqual(
             "Markdown",
-            subjects[1]["contexts"][0].split(" ")[0])
+            subjects[1]["notes"][0].split(" ")[0])
         self.assertEqual(
             "Thus,",
-            subjects[1]["contexts"][1].split(" ")[0])
+            subjects[1]["notes"][1].split(" ")[0])
         self.assertEqual(
             "  [syntax]: /projects/markdown/syntax",
-            subjects[1]["contexts"][2].split("\n")[0])
+            subjects[1]["notes"][2].split("\n")[0])
 
     def test_parse_document_only(self):
         doc_only = """
@@ -71,7 +71,7 @@ Markdown
 """
         obj = self.md_context.parse(doc_only)
 
-        self.assertEqual(1, len(obj["documents"]))
+        self.assertEqual(1, len(obj["projects"]))
 
     def test_parse_document_and_subject_only(self):
         doc_and_sub_only = """
@@ -88,8 +88,8 @@ Introduction
 """
         obj = self.md_context.parse(doc_and_sub_only)
 
-        self.assertEqual(1, len(obj["documents"]))
-        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
+        self.assertEqual(1, len(obj["projects"]))
+        self.assertEqual(2, len(obj["projects"][0]["tasks"]))
 
     def test_export(self):
         simple_md = """Markdown
@@ -122,7 +122,7 @@ Introduction
         obj = self.md_context.parse(simple_md)
         md_text = self.md_context.export(obj)
 
-        self.assertEqual("""document
+        self.assertEqual("""untitled
 ========
 
 Download
@@ -144,76 +144,76 @@ Introduction
 """
         obj = self.md_context.parse(no_doc)
 
-        self.assertEqual(1, len(obj["documents"]))
-        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
-        self.assertEqual("document", obj["documents"][0]["title"])
+        self.assertEqual(1, len(obj["projects"]))
+        self.assertEqual(2, len(obj["projects"][0]["tasks"]))
+        self.assertEqual("untitled", obj["projects"][0]["name"])
 
     def test_parse_with_separated_section(self):
         separated_md = """
-Category A
+Project A
 ========
 
-Thing A
+Task A
 -------
 
-"Thing A" in Category A
+"Task A" in Project A
 
-Thing B
+Task B
 -------
 
-"Thing B" in Category A
+"Task B" in Project A
 
-Category B
+Project B
 ==========
 
-Thing C
+Task C
 -------
 
-"Thing C" in Category B
+"Task C" in Project B
 
-Category A
+Project A
 ==========
 
-Thing A
+Task A
 -------
 
-"Thing A" in another Category A
+"Task A" in another Project A
 
-Category B
+Project B
 ==========
 
-Thing C
+Task C
 -------
 
-"Thing C" in another Category B
+"Task C" in another Project B
 
-Thing D
+Task D
 -------
 
-"Thing D" in another Category B
+"Task D" in another Project B
 
 """
         obj = self.md_context.parse(separated_md)
 
-        self.assertEqual(2, len(obj["documents"]))
-        self.assertEqual(2, len(obj["documents"][0]["subjects"]))
-        self.assertEqual(2, len(obj["documents"][1]["subjects"]))
+        self.assertEqual(2, len(obj["projects"]))
+        self.assertEqual(2, len(obj["projects"][0]["tasks"]))
+        self.assertEqual(2, len(obj["projects"][1]["tasks"]))
 
     def test_parse_repeatable(self):
         md_a = """
-Category A
+Project A
 ==========
 
-Thing A
+Task A
 -------
 
 Task A
 """
         md_b = """
-Category A
+Project A
 ==========
 
-Thing A
+Task A
 -------
 
 Task B
@@ -222,30 +222,30 @@ Task B
         self.md_context.parse(md_a)
         self.md_context.parse(md_b)
 
-        obj = self.md_context.get_context()
+        obj = self.md_context.get_note()
 
-        self.assertEqual(2, len(obj["documents"][0]["subjects"][0]["contexts"]))
+        self.assertEqual(2, len(obj["projects"][0]["tasks"][0]["notes"]))
 
     def test_export_with_invalid_object(self):
         self.assertIsNone(self.md_context.export([]))
         self.assertIsNone(self.md_context.export({}))
         self.assertEqual("", self.md_context.export({
-            "documents": [
+            "projects": [
                 {
-                    "title": "Title"
+                    "name": "name"
                 }
             ]
         }))
-        self.assertEqual("""Title
-=====
+        self.assertEqual("""Project A
+=========
 
 """, self.md_context.export({
-            "documents": [
+            "projects": [
                 {
-                    "title": "Title",
-                    "subjects": [
+                    "name": "Project A",
+                    "tasks": [
                         {
-                            "title": "Subject Title"
+                            "name": "Task A"
                         }
                     ]
                 }

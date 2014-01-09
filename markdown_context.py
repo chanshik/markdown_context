@@ -1,27 +1,27 @@
 """
 Convert markdown context to JSON.
 
-Document A
-==========
+Project A
+=========
 
-Subject A
-----------
+Task A
+------
 
-Context A
+Note A
 
 
 convert to JSON.
 
 {
-    "documents": [
+    "projects": [
         {
-            "title": "Document A",
-            "subjects": [
+            "name": "Project A",
+            "tasks": [
                 {
-                    "title": "Subject A",
-                    "contexts": [
+                    "name": "Task A",
+                    "notes": [
                         {
-                            "paragraph": "Context A\n
+                            "paragraph": "It's a note.\n
                         }
                     ]
                 }
@@ -36,101 +36,101 @@ import re
 
 class MarkdownContext(object):
     def __init__(self):
-        self.re_document = re.compile(r"=====+")
-        self.re_subject = re.compile(r"-----+")
-        self.obj = dict(documents=list())
-        self.cur_doc = None
-        self.cur_sub = None
+        self.re_project = re.compile(r"=====+")
+        self.re_task = re.compile(r"-----+")
+        self.obj = dict(projects=list())
+        self.cur_prj = None
+        self.cur_task = None
 
     def parse(self, md):
         lines = md.split("\n")
-        paragraph = []
+        notes = []
 
         for i in range(len(lines)):
             # Each paragraph separated by empty line.
             if lines[i].strip() == "":
-                if self.cur_doc and self.cur_sub and len(paragraph) > 0:
-                    self.add_context("\n".join(paragraph), self.cur_sub)
+                if self.cur_prj and self.cur_task and len(notes) > 0:
+                    self.add_note("\n".join(notes), self.cur_task)
 
-                    paragraph = []
+                    notes = []
                 continue
 
-            if self.cur_doc and self.cur_sub:
-                paragraph.append(lines[i])
+            if self.cur_prj and self.cur_task:
+                notes.append(lines[i])
 
-            is_doc = self.find_and_add_document(lines, i)
-            is_sub = self.find_and_add_subject(lines, i)
+            is_prj = self.find_and_add_project(lines, i)
+            is_task = self.find_and_add_task(lines, i)
 
-            if (is_doc or is_sub) and len(paragraph) > 0:
+            if (is_prj or is_task) and len(notes) > 0:
                 # Remove 2 lines before current line.
-                #   Title   Subject
-                #   =====   -------
+                #   Title   Name
+                #   =====   ----
                 #   --> Current line position.
-                paragraph.pop()
-                paragraph.pop()
+                notes.pop()
+                notes.pop()
 
         return self.obj
 
-    def get_context(self):
+    def get_note(self):
         return self.obj
 
-    def find_and_add_document(self, lines, idx):
-        if self.re_document.match(lines[idx]):
-            return self.add_document(lines[idx - 1])
+    def find_and_add_project(self, lines, idx):
+        if self.re_project.match(lines[idx]):
+            return self.add_project(lines[idx - 1])
         else:
             return None
 
-    def add_document(self, title):
-        exist_doc = False
-        for doc in self.obj["documents"]:
-            if title == doc["title"]:
-                exist_doc = True
+    def add_project(self, title):
+        exist_prj = False
+        for prj in self.obj["projects"]:
+            if title == prj["name"]:
+                exist_prj = True
 
-                self.cur_doc = doc
+                self.cur_prj = prj
                 break
 
-        if exist_doc is False:
-            self.obj["documents"].append({
-                "title": title,
-                "subjects": list()
+        if exist_prj is False:
+            self.obj["projects"].append({
+                "name": title,
+                "tasks": list()
             })
+            # Last element is recently added project.
+            self.cur_prj = self.obj["projects"][-1]
 
-            self.cur_doc = self.obj["documents"][-1]
+        return self.cur_prj
 
-        return self.cur_doc
+    def find_and_add_task(self, lines, idx):
+        if self.re_task.match(lines[idx]):
+            if self.cur_prj is None:
+                # Add default 'projects'
+                self.cur_prj = self.add_project("untitled")
 
-    def find_and_add_subject(self, lines, idx):
-        if self.re_subject.match(lines[idx]):
-            if self.cur_doc is None:
-                # Add default 'document'
-                self.cur_doc = self.add_document("document")
-
-            return self.add_subject(self.cur_doc, lines[idx - 1])
+            return self.add_task(self.cur_prj, lines[idx - 1])
         else:
             return None
 
-    def add_subject(self, doc, title):
-        exist_sub = False
-        for sub in doc["subjects"]:
-            if title == sub["title"]:
-                exist_sub = True
+    def add_task(self, prj, name):
+        exist_task = False
+        for task in prj["tasks"]:
+            if name == task["name"]:
+                exist_task = True
 
-                self.cur_sub = sub
+                self.cur_task = task
                 break
 
-        if exist_sub is False:
-            doc["subjects"].append({
-                "title": title,
-                "contexts": list()
+        if exist_task is False:
+            prj["tasks"].append({
+                "name": name,
+                "notes": list()
             })
 
-            self.cur_sub = doc["subjects"][-1]
+            self.cur_task = prj["tasks"][-1]
 
-        return self.cur_sub
+        return self.cur_task
 
     @staticmethod
-    def add_context(paragraph, sub):
-        sub["contexts"].append(paragraph)
+    def add_note(note, task):
+        task["notes"].append(note)
 
     def export(self, md_obj=None):
         if md_obj is None:
@@ -139,24 +139,24 @@ class MarkdownContext(object):
         if not isinstance(md_obj, dict):
             return None
 
-        if "documents" not in md_obj:
+        if "projects" not in md_obj:
             return None
 
         result = ""
-        for doc in md_obj["documents"]:
-            if "title" not in doc or "subjects" not in doc:
+        for project in md_obj["projects"]:
+            if "name" not in project or "tasks" not in project:
                 continue
 
-            result += doc["title"] + "\n"
-            result += "=" * len(doc["title"]) + "\n\n"
+            result += project["name"] + "\n"
+            result += "=" * len(project["name"]) + "\n\n"
 
-            for sub in doc["subjects"]:
-                if "title" not in sub or "contexts" not in sub:
+            for task in project["tasks"]:
+                if "name" not in task or "notes" not in task:
                     continue
 
-                result += sub["title"] + "\n"
-                result += "-" * len(sub["title"]) + "\n\n"
-                for para in sub["contexts"]:
-                    result += para + "\n"
+                result += task["name"] + "\n"
+                result += "-" * len(task["name"]) + "\n\n"
+                for note in task["notes"]:
+                    result += note + "\n"
 
         return result
